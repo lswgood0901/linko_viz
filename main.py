@@ -18,6 +18,8 @@ def entropy(pos):
 
 datasample = pd.read_csv('1_feedback_viewedFP_caadria.csv')
 linkdata = datasample['link']
+selected_data = []
+
 index = 0
 rnlinks = []
 fslinks = []
@@ -26,8 +28,7 @@ rslinks = []
 rsllinks = []
 rclinks = []
 
-for a in range(len(linkdata)-1):
-
+for a in range(len(linkdata)):
     string_to_array = ast.literal_eval(linkdata[a])
     rnlink = []
     fslink = []
@@ -37,25 +38,29 @@ for a in range(len(linkdata)-1):
     rclink = []
 
     for b in string_to_array:
-        if b[0] == "rn" and datasample['event'][index] != 2:
+        if b[0] == "rn" and datasample['event'][a] != 2:
             rnlink.append([b[1], b[2]])
-        elif b[0] == "fs" and datasample['event'][index] != 2:
+        elif b[0] == "fs" and datasample['event'][a] != 2:
             fslink.append([b[1], b[2]])
-        elif b[0] == "lc" and datasample['event'][index] != 2:
+        elif b[0] == "lc" and datasample['event'][a] != 2:
             lclink.append([b[1], b[2]])
-        elif b[0] == "rs" and datasample['event'][index] != 2:
+        elif b[0] == "rs" and datasample['event'][a] != 2:
             rslink.append([b[1], b[2]])
-        elif b[0] == "rsl" and datasample['event'][index] != 2:
+        elif b[0] == "rsl" and datasample['event'][a] != 2:
             rsllink.append([b[1], b[2]])
-        elif b[0] == "rc" and datasample['event'][index] != 2:
+        elif b[0] == "rc" and datasample['event'][a] != 2:
             rclink.append([b[1], b[2]])
-    rnlinks.append(rnlink)
-    fslinks.append(fslink)
-    lclinks.append(lclink)
-    rslinks.append(rslink)
-    rsllinks.append(rsllink)
-    rclinks.append(rclink)
+    if datasample['event'][a] != 2:
+        selected_data.append(datasample['event'][a])
+        rnlinks.append(rnlink)
+        fslinks.append(fslink)
+        lclinks.append(lclink)
+        rslinks.append(rslink)
+        rsllinks.append(rsllink)
+        rclinks.append(rclink)
     index += 1
+for i in rnlinks:
+    print(i)
 def appending_currentstate(anylinks):
     index = 0
     current_state = []
@@ -82,6 +87,8 @@ lc_cs = appending_currentstate(lclinks)
 rs_cs = appending_currentstate(rslinks)
 rsl_cs = appending_currentstate(rsllinks)
 rc_cs = appending_currentstate(rclinks)
+print(selected_data)
+print(rn_cs)
 fore_rncs = []
 back_rncs = []
 fore_fscs = []
@@ -134,5 +141,4 @@ for i in all_back:
     plt.plot(x_axis, i)
     plt.title(name[index])
     index += 1
-
 plt.show()

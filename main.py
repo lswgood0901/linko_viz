@@ -16,7 +16,7 @@ def entropy(pos):
         return 0
     return -1 * pos * math.log2(pos) - 1 * (1 - pos) * math.log2(1 - pos)
 
-datasample = pd.read_csv('1_feedback_viewedFP_caadria.csv')
+datasample = pd.read_csv('1_feedback_viewedFP_caadria_test.csv')
 linkdata = datasample['link']
 fpname_list = datasample['floorplan_name']
 fpname_list = fpname_list.values.tolist()

@@ -16,7 +16,7 @@ def entropy(pos):
         return 0
     return -1 * pos * math.log2(pos) - 1 * (1 - pos) * math.log2(1 - pos)
 
-datasample = pd.read_csv('1_feedback_viewedFP_caadria_test.csv')
+datasample = pd.read_csv('1_feedback_viewedFP_caadria_이태하선생님.csv')
 linkdata = datasample['link']
 fpname_list = datasample['floorplan_name']
 fpname_list = fpname_list.values.tolist()
@@ -91,6 +91,26 @@ def appending_currentstate(anylinks):
         index += 1
     return current_state
 
+def count_linknumber(anylinks):
+    index = 0
+    for links in anylinks:
+        nforeLink_pos = [0 for i in range(index)]
+        nbackLink_pos = [0 for i in range(index)]
+        for link in links:
+            nforeLink_pos[link[0]] += 1
+            nbackLink_pos[link[1] - 1] += 1
+        index += 1
+    nforeLink_pos.append(0)
+    nbackLink_pos.insert(0,0)
+    return nforeLink_pos, nbackLink_pos
+
+fore_rn_num, back_rn_num = count_linknumber(rnlinks)
+fore_fs_num, back_fs_num = count_linknumber(fslinks)
+fore_lc_num, back_lc_num = count_linknumber(lclinks)
+fore_rc_num, back_rc_num = count_linknumber(rclinks)
+fore_rs_num, back_rs_num = count_linknumber(rslinks)
+fore_rsl_num, back_rsl_num = count_linknumber(rsllinks)
+
 rn_cs = appending_currentstate(rnlinks)
 fs_cs = appending_currentstate(fslinks)
 lc_cs = appending_currentstate(lclinks)
@@ -129,9 +149,27 @@ for i in rsl_cs:
 for i in rc_cs:
     fore_rccs.append(i[1])
     back_rccs.append(i[0])
+
 all_fore = [fore_rncs, fore_fscs, fore_lccs, fore_rscs, fore_rslcs, fore_rccs]
 all_back = [back_rncs, back_fscs, back_lccs, back_rscs, back_rslcs, back_rccs]
-name = ['NR - Div', 'FS - Div', 'LC - Div', 'RS - Div', 'RSL - Div', 'RC - Div', 'NR - Conv', 'FS - Conv', 'LC - Conv', 'RS - Conv', 'RSL - Conv', 'RC - Conv',]
+all_fore_num = [fore_rn_num, fore_fs_num, fore_lc_num, fore_rs_num, fore_rsl_num, fore_rc_num]
+all_back_num = [back_rn_num, back_fs_num, back_lc_num, back_rs_num, back_rsl_num, back_rc_num]
+mean_index = 0
+mean_div = []
+mean_conv = []
+
+for i in range(len(rs_cs)):
+    mean_array_fore = [fore_rncs[mean_index], fore_fscs[mean_index], fore_lccs[mean_index], fore_rscs[mean_index], fore_rslcs[mean_index], fore_rccs[mean_index]]
+    mean_array_back = [back_rncs[mean_index], back_fscs[mean_index], back_lccs[mean_index], back_rscs[mean_index], back_rslcs[mean_index], back_rccs[mean_index]]
+    mean_div.append(np.mean(mean_array_fore))
+    mean_conv.append(np.mean(mean_array_back))
+    mean_index += 1
+print(mean_div, mean_conv)
+
+name = ['NR - Div', 'FS - Div', 'RL - Div', 'RS - Div', 'RSL - Div', 'RC - Div', 'mean_div',
+            'NR - Conv', 'FS - Conv', 'RL - Conv', 'RS - Conv', 'RSL - Conv', 'RC - Conv', 'mean_conv',
+            'NR - forelinks', 'FS - forelinks', 'RL - forelinks', 'RS - forelinks', 'RSL - forelinks', 'RC - forelinks', '',
+            'NR - backlinks', 'FS - backlinks', 'RL - backlinks', 'RS - backlinks', 'RSL - backlinks', 'RC - backlinks', '']
 plt.rc("font", size=8)
 plt.rc('ytick', labelsize=5)
 plt.rc('xtick', labelsize=5)
@@ -141,7 +179,7 @@ plt.subplots_adjust(left=0.05, bottom=0.1, right=0.95, top=0.95, wspace=0.2, hsp
 x_axis = range(0, len(rs_cs))
 index = 0
 for i in all_fore:
-    plt.subplot(2,6,index+1)
+    plt.subplot(4,7,index+1)
     plt.plot(x_axis, i)
     scatter_index = 0
     for l in i:
@@ -150,10 +188,53 @@ for i in all_fore:
         scatter_index += 1
     plt.title(name[index])
     index += 1
+
+plt.subplot(4,7,index+1)
+plt.plot(x_axis, mean_div)
+scatter_index = 0
+for l in mean_div:
+    if selected_data[scatter_index] == 1:
+        plt.scatter(scatter_index, l, s = 10, c = 'r')
+    scatter_index += 1
+plt.title(name[index])
+index += 1
+
 for i in all_back:
-    plt.subplot(2,6,index+1)
+    plt.subplot(4,7,index+1)
     plt.plot(x_axis, i)
     scatter_index = 0
+    for l in i:
+        if selected_data[scatter_index] == 1:
+            plt.scatter(scatter_index, l, s=10, c='r')
+        scatter_index += 1
+    plt.title(name[index])
+    index += 1
+
+plt.subplot(4,7,index+1)
+plt.plot(x_axis, mean_conv)
+scatter_index = 0
+for l in mean_conv:
+    if selected_data[scatter_index] == 1:
+        plt.scatter(scatter_index, l, s = 10, c = 'r')
+    scatter_index += 1
+plt.title(name[index])
+index += 1
+
+for i in all_fore_num:
+    plt.subplot(4,7,index+1)
+    plt.plot(x_axis, i)
+    scatter_index=0
+    for l in i:
+        if selected_data[scatter_index] == 1:
+            plt.scatter(scatter_index, l, s=10, c='r')
+        scatter_index += 1
+    plt.title(name[index])
+    index += 1
+index += 1
+for i in all_back_num:
+    plt.subplot(4,7,index+1)
+    plt.plot(x_axis, i)
+    scatter_index=0
     for l in i:
         if selected_data[scatter_index] == 1:
             plt.scatter(scatter_index, l, s=10, c='r')
